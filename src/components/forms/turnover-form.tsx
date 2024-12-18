@@ -6,7 +6,8 @@ import * as z from "zod";
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
-import { useFormStore } from '@/store/formStore';
+import { useFormStore } from "@/store/formStore";
+import { FaRegCopyright } from "react-icons/fa";
 import {
   Form,
   FormControl,
@@ -18,7 +19,7 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { 
+import {
   Popover,
   PopoverContent,
   PopoverTrigger,
@@ -28,52 +29,54 @@ import { format } from "date-fns";
 import { Calendar } from "@/components/ui/calendar";
 import { CalendarIcon } from "lucide-react";
 
-const formSchema = z.object({
-  turnoverExceedingTenCrore: z.enum(["yes", "no"], {
-    required_error: "Please select whether turnover exceeds 10 crore",
-  }),
-  hasFiledITR: z.enum(["yes", "no"], {
-    required_error: "Please select whether you have filed ITR",
-  }),
-  acknowledgementNo2021: z.string().optional(),
-  filingDate2021: z.date().optional(),
-  acknowledgementNo2022: z.string().optional(),
-  filingDate2022: z.date().optional(),
-  acknowledgementNo2023: z.string().optional(),
-  filingDate2023: z.date().optional(),
-}).superRefine((data, ctx) => {
-  if (data.hasFiledITR === "yes") {
-    if (!data.acknowledgementNo2021) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        message: "Acknowledgement number for FY 2020-21 is required",
-        path: ["acknowledgementNo2021"],
-      });
+const formSchema = z
+  .object({
+    turnoverExceedingTenCrore: z.enum(["yes", "no"], {
+      required_error: "Please select whether turnover exceeds 10 crore",
+    }),
+    hasFiledITR: z.enum(["yes", "no"], {
+      required_error: "Please select whether you have filed ITR",
+    }),
+    acknowledgementNo2021: z.string().optional(),
+    filingDate2021: z.date().optional(),
+    acknowledgementNo2022: z.string().optional(),
+    filingDate2022: z.date().optional(),
+    acknowledgementNo2023: z.string().optional(),
+    filingDate2023: z.date().optional(),
+  })
+  .superRefine((data, ctx) => {
+    if (data.hasFiledITR === "yes") {
+      if (!data.acknowledgementNo2021) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: "Acknowledgement number for FY 2020-21 is required",
+          path: ["acknowledgementNo2021"],
+        });
+      }
+      if (!data.filingDate2021) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: "Filing date for FY 2020-21 is required",
+          path: ["filingDate2021"],
+        });
+      }
+      // Similar validations for 2022
+      if (!data.acknowledgementNo2022) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: "Acknowledgement number for FY 2021-22 is required",
+          path: ["acknowledgementNo2022"],
+        });
+      }
+      if (!data.filingDate2022) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: "Filing date for FY 2021-22 is required",
+          path: ["filingDate2022"],
+        });
+      }
     }
-    if (!data.filingDate2021) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        message: "Filing date for FY 2020-21 is required",
-        path: ["filingDate2021"],
-      });
-    }
-    // Similar validations for 2022
-    if (!data.acknowledgementNo2022) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        message: "Acknowledgement number for FY 2021-22 is required",
-        path: ["acknowledgementNo2022"],
-      });
-    }
-    if (!data.filingDate2022) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        message: "Filing date for FY 2021-22 is required",
-        path: ["filingDate2022"],
-      });
-    }
-  }
-});
+  });
 
 type FormData = z.infer<typeof formSchema>;
 
@@ -83,7 +86,8 @@ export function TurnoverForm() {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Check if user is from outside India
-  const isOutsideIndia = formData.general?.placeOfBusiness === "Outside India (Import/Export)";
+  const isOutsideIndia =
+    formData.general?.placeOfBusiness === "Outside India (Import/Export)";
 
   const form = useForm<FormData>({
     resolver: zodResolver(formSchema),
@@ -102,9 +106,9 @@ export function TurnoverForm() {
   async function onSubmit(data: FormData) {
     try {
       setIsSubmitting(true);
-      updateFormData('turnover', data);
+      updateFormData("turnover", data);
       // Update navigation to match the path in constants
-      router.push("/submitter");  // Changed from "/submitter-declaration" to "/submitter"
+      router.push("/submitter"); // Changed from "/submitter-declaration" to "/submitter"
     } catch (error) {
       console.error("Error submitting form:", error);
     } finally {
@@ -112,52 +116,53 @@ export function TurnoverForm() {
     }
   }
 
-    // If outside India, show simplified view
-    if (isOutsideIndia) {
-      return (
-        <div className="max-w-2xl mx-auto p-4 sm:p-6 lg:p-8">
-          <div className="space-y-6">
-            <div className="text-center py-8">
-              <p className="text-gray-600">
-                Parties Registered Outside India are not required to Submit Tax Registration Details.
-              </p>
-              <p className="text-gray-600 mt-2">
-                Kindly Press "Next" to continue.
-              </p>
-            </div>
-  
-            <div className="flex justify-between pt-6">
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => router.push("/address")}
-                className="w-24"
-              >
-                Back
-              </Button>
-              <Button 
-                onClick={() => router.push("/submitter")}  // Updated this path as well
-                className="w-24"
-              >
-                Next
-              </Button>
-            </div>
-  
-            <div className="text-right text-sm text-gray-500">
-              7/8
-            </div>
-          </div>
-        </div>
-      );
-    }
-
+  // If outside India, show simplified view
+  if (isOutsideIndia) {
     return (
-      <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+      <div className="max-w-2xl mx-auto p-4 sm:p-6 lg:p-8">
+        <div className="space-y-6">
+          <div className="text-center py-8">
+            <p className="text-gray-600">
+              Parties Registered Outside India are not required to Submit Tax
+              Registration Details.
+            </p>
+            <p className="text-gray-600 mt-2">
+              Kindly Press "Next" to continue.
+            </p>
+          </div>
+
+          <div className="flex justify-between pt-6">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => router.push("/address")}
+              className="w-24"
+            >
+              Back
+            </Button>
+            <Button
+              onClick={() => router.push("/submitter")} // Updated this path as well
+              className="w-24"
+            >
+              Next
+            </Button>
+          </div>
+
+          <div className="text-right text-sm text-gray-500">7/8</div>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <Form {...form}>
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
         <div className="bg-slate-50 p-4 rounded-md text-sm">
-          In view of the Finance Act, 2021 introduced a new section 206AB, we hereby certify that we have filed the ITR and 
-          aggregate of tax deducted at source and tax collected at source in our case in 26AS is more less than INR 50,000 for 
-          immediately preceding two previous years i.e., for FY 2021-22 and FY 2022-23, details of which are as follows:
+          In view of the Finance Act, 2021 introduced a new section 206AB, we
+          hereby certify that we have filed the ITR and aggregate of tax
+          deducted at source and tax collected at source in our case in 26AS is
+          more less than INR 50,000 for immediately preceding two previous years
+          i.e., for FY 2021-22 and FY 2022-23, details of which are as follows:
         </div>
 
         {/* Turnover Question */}
@@ -166,7 +171,10 @@ export function TurnoverForm() {
           name="turnoverExceedingTenCrore"
           render={({ field }) => (
             <FormItem className="space-y-3">
-              <FormLabel>Turnover of our company/entity during FY 2022-23 exceeding Rs. 10 crs (Yes/No)*</FormLabel>
+              <FormLabel>
+                Turnover of our company/entity during FY 2022-23 exceeding Rs.
+                10 crs (Yes/No)<span className="text-red-500">*</span>
+              </FormLabel>
               <FormControl>
                 <RadioGroup
                   onValueChange={field.onChange}
@@ -198,7 +206,10 @@ export function TurnoverForm() {
           name="hasFiledITR"
           render={({ field }) => (
             <FormItem className="space-y-3">
-              <FormLabel>Have your filed Income Tax Return for in the following Financial Year - FY 2020-21, FY 2021-22 and FY 2022-23?*</FormLabel>
+              <FormLabel>
+                Have your filed Income Tax Return for in the following Financial
+                Year - FY 2020-21, FY 2021-22 and FY 2022-23?<span className="text-red-500">*</span>
+              </FormLabel>
               <FormControl>
                 <RadioGroup
                   onValueChange={field.onChange}
@@ -233,7 +244,7 @@ export function TurnoverForm() {
                 name="acknowledgementNo2021"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Acknowledgement No (FY 2020-21)*</FormLabel>
+                    <FormLabel>Acknowledgement No (FY 2020-21)<span className="text-red-500">*</span></FormLabel>
                     <FormControl>
                       <Input {...field} />
                     </FormControl>
@@ -247,7 +258,7 @@ export function TurnoverForm() {
                 name="filingDate2021"
                 render={({ field }) => (
                   <FormItem className="flex flex-col">
-                    <FormLabel>Date of Filing (FY 2020-21)*</FormLabel>
+                    <FormLabel>Date of Filing (FY 2020-21)<span className="text-red-500">*</span></FormLabel>
                     <Popover>
                       <PopoverTrigger asChild>
                         <FormControl>
@@ -289,7 +300,7 @@ export function TurnoverForm() {
                 name="acknowledgementNo2022"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Acknowledgement No (FY 2021-22)*</FormLabel>
+                    <FormLabel>Acknowledgement No (FY 2021-22)<span className="text-red-500">*</span></FormLabel>
                     <FormControl>
                       <Input {...field} />
                     </FormControl>
@@ -303,7 +314,7 @@ export function TurnoverForm() {
                 name="filingDate2022"
                 render={({ field }) => (
                   <FormItem className="flex flex-col">
-                    <FormLabel>Date of Filing (FY 2021-22)*</FormLabel>
+                    <FormLabel>Date of Filing (FY 2021-22)<span className="text-red-500">*</span></FormLabel>
                     <Popover>
                       <PopoverTrigger asChild>
                         <FormControl>
@@ -402,7 +413,7 @@ export function TurnoverForm() {
           </div>
         )}
 
-<div className="flex justify-between pt-6">
+        <div className="flex justify-between pt-6">
           <Button
             type="button"
             variant="outline"
@@ -411,17 +422,17 @@ export function TurnoverForm() {
           >
             Back
           </Button>
-          <Button 
-            type="submit"
-            disabled={isSubmitting}
-            className="w-24"
-          >
+          <Button type="submit" disabled={isSubmitting} className="w-24">
             {isSubmitting ? "Saving..." : "Next"}
           </Button>
         </div>
 
-        <div className="text-right text-sm text-gray-500">
-          7/8
+        <div className="text-right text-sm text-gray-500">7/8</div>
+        <div className="flex flex-col sm:flex-row justify-center items-center text-center text-sm sm:text-base text-gray-500 border-t border-gray-300 pt-4">
+          <p>
+            2016 <FaRegCopyright className="inline mx-1" /> Shaster Technologies
+            Pvt Ltd All Rights Reserved
+          </p>
         </div>
       </form>
     </Form>

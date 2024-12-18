@@ -5,8 +5,9 @@ import { useForm } from "react-hook-form";
 import * as z from "zod";
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
-import { useFormStore } from '@/store/formStore';
-import { useState, useEffect } from "react"; 
+import { useFormStore } from "@/store/formStore";
+import { useState, useEffect } from "react";
+import { FaRegCopyright } from "react-icons/fa";
 import {
   Form,
   FormControl,
@@ -26,16 +27,8 @@ import {
 } from "@/components/ui/select";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 
-
 // Title options for the contact person
-const titles = [
-  "Mr.",
-  "Mrs.",
-  "Ms.",
-  "Dr.",
-  "Prof.",
-  "Select",
-] as const;
+const titles = ["Mr.", "Mrs.", "Ms.", "Dr.", "Prof.", "Select"] as const;
 
 // Country codes list
 const countryCodes = [
@@ -46,24 +39,29 @@ const countryCodes = [
   { code: "+86", country: "China", flag: "🇨🇳" },
 ] as const;
 
-const formSchema = z.object({
-  title: z.enum(titles),
-  firstName: z.string().min(1, "First name is required"),
-  lastName: z.string().optional(),
-  designation: z.string().min(1, "Designation is required"),
-  countryCode: z.string().min(1, "Country code is required"),
-  phoneNumber: z.string().min(10, "Phone number must be at least 10 digits"),
-  hasEmail: z.enum(["yes", "no"]),
-  email: z.string().optional(),
-}).refine((data) => {
-  if (data.hasEmail === "yes" && !data.email) {
-    return false;
-  }
-  return true;
-}, {
-  message: "Email is required when 'Yes' is selected",
-  path: ["email"],
-});
+const formSchema = z
+  .object({
+    title: z.enum(titles),
+    firstName: z.string().min(1, "First name is required"),
+    lastName: z.string().optional(),
+    designation: z.string().min(1, "Designation is required"),
+    countryCode: z.string().min(1, "Country code is required"),
+    phoneNumber: z.string().min(10, "Phone number must be at least 10 digits"),
+    hasEmail: z.enum(["yes", "no"]),
+    email: z.string().optional(),
+  })
+  .refine(
+    (data) => {
+      if (data.hasEmail === "yes" && !data.email) {
+        return false;
+      }
+      return true;
+    },
+    {
+      message: "Email is required when 'Yes' is selected",
+      path: ["email"],
+    }
+  );
 
 type FormData = z.infer<typeof formSchema>;
 
@@ -90,10 +88,10 @@ export function ContactPersonForm() {
   async function onSubmit(data: FormData) {
     try {
       setIsSubmitting(true);
-      
+
       // Store the form data
-      updateFormData('contactPerson', data);
-  
+      updateFormData("contactPerson", data);
+
       // Navigate to address form - using the correct path
       router.push("/address");
     } catch (error) {
@@ -113,8 +111,11 @@ export function ContactPersonForm() {
             name="title"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Title*</FormLabel>
-                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                <FormLabel>Title<span className="text-red-500">*</span></FormLabel>
+                <Select
+                  onValueChange={field.onChange}
+                  defaultValue={field.value}
+                >
                   <FormControl>
                     <SelectTrigger>
                       <SelectValue placeholder="Select title" />
@@ -138,7 +139,7 @@ export function ContactPersonForm() {
             name="firstName"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>First Name*</FormLabel>
+                <FormLabel>First Name<span className="text-red-500">*</span></FormLabel>
                 <FormControl>
                   <Input {...field} />
                 </FormControl>
@@ -169,7 +170,7 @@ export function ContactPersonForm() {
           name="designation"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Contact Person Designation*</FormLabel>
+              <FormLabel>Contact Person Designation<span className="text-red-500">*</span></FormLabel>
               <FormControl>
                 <Input {...field} />
               </FormControl>
@@ -185,8 +186,11 @@ export function ContactPersonForm() {
             name="countryCode"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Country Code*</FormLabel>
-                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                <FormLabel>Country Code<span className="text-red-500">*</span></FormLabel>
+                <Select
+                  onValueChange={field.onChange}
+                  defaultValue={field.value}
+                >
                   <FormControl>
                     <SelectTrigger>
                       <SelectValue placeholder="Select country code" />
@@ -198,7 +202,9 @@ export function ContactPersonForm() {
                         <span className="flex items-center gap-2">
                           <span>{country.flag}</span>
                           <span>{country.code}</span>
-                          <span className="text-muted-foreground">({country.country})</span>
+                          <span className="text-muted-foreground">
+                            ({country.country})
+                          </span>
                         </span>
                       </SelectItem>
                     ))}
@@ -214,7 +220,7 @@ export function ContactPersonForm() {
             name="phoneNumber"
             render={({ field }) => (
               <FormItem className="col-span-2">
-                <FormLabel>Contact Number*</FormLabel>
+                <FormLabel>Contact Number<span className="text-red-500">*</span></FormLabel>
                 <FormControl>
                   <Input type="tel" {...field} />
                 </FormControl>
@@ -230,7 +236,7 @@ export function ContactPersonForm() {
           name="hasEmail"
           render={({ field }) => (
             <FormItem className="space-y-3">
-              <FormLabel>Do you have contact person Email ID?*</FormLabel>
+              <FormLabel>Do you have contact person Email ID?<span className="text-red-500">*</span></FormLabel>
               <FormControl>
                 <RadioGroup
                   onValueChange={field.onChange}
@@ -263,12 +269,13 @@ export function ContactPersonForm() {
             name="email"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Contact Email ID*</FormLabel>
+                <FormLabel>Contact Email ID<span className="text-red-500">*</span></FormLabel>
                 <FormControl>
                   <Input type="email" {...field} />
                 </FormControl>
                 <FormDescription>
-                  Enter email to which you would like to receive submitted response details.
+                  Enter email to which you would like to receive submitted
+                  response details.
                 </FormDescription>
                 <FormMessage />
               </FormItem>
@@ -276,7 +283,7 @@ export function ContactPersonForm() {
           />
         )}
 
-<div className="flex justify-between pt-6">
+        <div className="flex justify-between pt-6">
           <Button
             type="button"
             variant="outline"
@@ -285,17 +292,17 @@ export function ContactPersonForm() {
           >
             Back
           </Button>
-          <Button 
-            type="submit" 
-            disabled={isSubmitting}
-            className="w-24"
-          >
+          <Button type="submit" disabled={isSubmitting} className="w-24">
             {isSubmitting ? "Saving..." : "Next"}
           </Button>
         </div>
 
-        <div className="text-right text-sm text-gray-500">
-          5/8
+        <div className="text-right text-sm text-gray-500">5/8</div>
+        <div className="flex flex-col sm:flex-row justify-center items-center text-center text-sm sm:text-base text-gray-500 border-t border-gray-300 pt-4">
+          <p>
+            2016 <FaRegCopyright className="inline mx-1" /> Shaster Technologies
+            Pvt Ltd All Rights Reserved
+          </p>
         </div>
       </form>
     </Form>

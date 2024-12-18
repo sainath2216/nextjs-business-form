@@ -3,10 +3,11 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm, useFieldArray } from "react-hook-form";
 import * as z from "zod";
-import { useState, useEffect } from "react"; 
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
-import { useFormStore } from '@/store/formStore';
+import { useFormStore } from "@/store/formStore";
+import { FaRegCopyright } from "react-icons/fa";
 import {
   Form,
   FormControl,
@@ -25,7 +26,6 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { PlusCircle, Trash2 } from "lucide-react";
-
 
 const addressTypes = ["Bill To", "Ship To", "Both"] as const;
 
@@ -63,7 +63,7 @@ type AddressData = {
   state: string;
   country: string;
   pincode: string;
-}
+};
 
 // Move this function before useForm
 const getDefaultAddress = (): AddressData => ({
@@ -73,7 +73,7 @@ const getDefaultAddress = (): AddressData => ({
   city: "",
   state: "",
   country: "India", // Default country
-  pincode: ""
+  pincode: "",
 });
 
 export function AddressForm() {
@@ -100,12 +100,12 @@ export function AddressForm() {
   async function onSubmit(data: FormData) {
     try {
       setIsSubmitting(true);
-      
+
       // Store the form data
-      updateFormData('address', data);
+      updateFormData("address", data);
 
       // Navigate to turnover form - using the correct path
-      router.push("/turnover");  
+      router.push("/turnover");
     } catch (error) {
       console.error("Error submitting form:", error);
     } finally {
@@ -117,10 +117,14 @@ export function AddressForm() {
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
         {fields.map((field, index) => (
-          <div key={field.id} className="space-y-6 border rounded-lg p-6 relative">
+          <div
+            key={field.id}
+            className="space-y-6 border rounded-lg p-6 relative"
+          >
             <div className="flex justify-between items-center">
               <h3 className="text-lg font-medium">
-                #{index + 1} - {index === 0 ? "Business Address" : "Additional Address"}
+                #{index + 1} -{" "}
+                {index === 0 ? "Business Address" : "Additional Address"}
               </h3>
               {index > 0 && (
                 <Button
@@ -141,8 +145,11 @@ export function AddressForm() {
               name={`addresses.${index}.addressType`}
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Business Address Type*</FormLabel>
-                  <Select onValueChange={field.onChange} defaultValue={field.value}>
+                  <FormLabel>Business Address Type<span className="text-red-500">*</span></FormLabel>
+                  <Select
+                    onValueChange={field.onChange}
+                    defaultValue={field.value}
+                  >
                     <FormControl>
                       <SelectTrigger>
                         <SelectValue placeholder="Select address type" />
@@ -167,7 +174,7 @@ export function AddressForm() {
               name={`addresses.${index}.addressLine1`}
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Address Line 1*</FormLabel>
+                  <FormLabel>Address Line 1<span className="text-red-500">*</span></FormLabel>
                   <FormControl>
                     <Input {...field} />
                   </FormControl>
@@ -197,7 +204,7 @@ export function AddressForm() {
               name={`addresses.${index}.city`}
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>City*</FormLabel>
+                  <FormLabel>City<span className="text-red-500">*</span></FormLabel>
                   <FormControl>
                     <Input {...field} />
                   </FormControl>
@@ -212,7 +219,7 @@ export function AddressForm() {
               name={`addresses.${index}.state`}
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>State*</FormLabel>
+                  <FormLabel>State<span className="text-red-500">*</span></FormLabel>
                   <FormControl>
                     <Input placeholder="State/Region/Province" {...field} />
                   </FormControl>
@@ -227,8 +234,11 @@ export function AddressForm() {
               name={`addresses.${index}.country`}
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Country*</FormLabel>
-                  <Select onValueChange={field.onChange} defaultValue={field.value}>
+                  <FormLabel>Country<span className="text-red-500">*</span></FormLabel>
+                  <Select
+                    onValueChange={field.onChange}
+                    defaultValue={field.value}
+                  >
                     <FormControl>
                       <SelectTrigger>
                         <SelectValue placeholder="Select country" />
@@ -253,7 +263,7 @@ export function AddressForm() {
               name={`addresses.${index}.pincode`}
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Pincode*</FormLabel>
+                  <FormLabel>Pincode<span className="text-red-500">*</span></FormLabel>
                   <FormControl>
                     <Input placeholder="Postal / Zip Code" {...field} />
                   </FormControl>
@@ -284,17 +294,17 @@ export function AddressForm() {
           >
             Back
           </Button>
-          <Button 
-            type="submit"
-            disabled={isSubmitting}
-            className="w-24"
-          >
+          <Button type="submit" disabled={isSubmitting} className="w-24">
             {isSubmitting ? "Saving..." : "Next"}
           </Button>
         </div>
 
-        <div className="text-right text-sm text-gray-500">
-          6/8
+        <div className="text-right text-sm text-gray-500">6/8</div>
+        <div className="flex flex-col sm:flex-row justify-center items-center text-center text-sm sm:text-base text-gray-500 border-t border-gray-300 pt-4">
+          <p>
+            2016 <FaRegCopyright className="inline mx-1" /> Shaster Technologies
+            Pvt Ltd All Rights Reserved
+          </p>
         </div>
       </form>
     </Form>

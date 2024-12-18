@@ -6,8 +6,10 @@ import { useForm } from "react-hook-form";
 import * as z from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@/components/ui/button";
-import { useFormStore } from '@/store/formStore';
-import { useFormNavigation } from '@/hooks/useFormNavigation';
+import { useFormStore } from "@/store/formStore";
+import { useFormNavigation } from "@/hooks/useFormNavigation";
+import { FaRegCopyright } from "react-icons/fa";
+
 import {
   Form,
   FormControl,
@@ -27,7 +29,7 @@ import {
 } from "@/components/ui/select";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { cn } from "@/lib/utils";
-import { FormState, GeneralFormData } from '@/types/form';
+import { FormState, GeneralFormData } from "@/types/form";
 
 // Industry types remain the same
 const vendorIndustryTypes = [
@@ -60,61 +62,95 @@ const customerIndustryTypes = [
 ] as const;
 
 // Form schema remains the same
-const formSchema = z.object({
-  hasBusinessEmail: z.enum(["yes", "no"], {
-    required_error: "Please select whether you have a business email",
-  }),
-  businessEmail: z.string().email().optional().or(z.literal("")),
-  partnerType: z.enum(["Vendor", "Customer", "Both"], {
-    required_error: "Please select partner type",
-  }),
-  businessName: z.string({
-    required_error: "Business name is required",
-  }).min(1, "Business name is required"),
-  ownershipType: z.enum(["Company", "HUF", "Individual", "LLP", "Partnership", "Other"], {
-    required_error: "Please select ownership type",
-  }),
-  website: z.string().url().optional().or(z.literal("")),
-  vendorIndustryType: z.enum(vendorIndustryTypes).optional(),
-  customerIndustryType: z.enum(customerIndustryTypes).optional(),
-  hasDealershipCertificate: z.enum(["yes", "no"]).optional(),
-  dealershipCertificate: z.any().optional(),
-  placeOfBusiness: z.enum(["Within India (Domestic)", "Outside India (Import/Export)"], {
-    required_error: "Please select your place of business",
-  }),
-}).refine((data) => {
-  if (data.hasBusinessEmail === "yes" && !data.businessEmail) {
-    return false;
-  }
-  return true;
-}, {
-  message: "Business email is required when 'Yes' is selected",
-  path: ["businessEmail"],
-}).refine((data) => {
-  if ((data.partnerType === "Vendor" || data.partnerType === "Both") && !data.vendorIndustryType) {
-    return false;
-  }
-  return true;
-}, {
-  message: "Vendor industry type is required",
-  path: ["vendorIndustryType"],
-}).refine((data) => {
-  if ((data.partnerType === "Customer" || data.partnerType === "Both") && !data.customerIndustryType) {
-    return false;
-  }
-  return true;
-}, {
-  message: "Customer industry type is required",
-  path: ["customerIndustryType"],
-}).refine((data) => {
-  if (data.hasDealershipCertificate === "yes" && !data.dealershipCertificate) {
-    return false;
-  }
-  return true;
-}, {
-  message: "Dealership certificate is required",
-  path: ["dealershipCertificate"],
-});
+const formSchema = z
+  .object({
+    hasBusinessEmail: z.enum(["yes", "no"], {
+      required_error: "Please select whether you have a business email",
+    }),
+    businessEmail: z.string().email().optional().or(z.literal("")),
+    partnerType: z.enum(["Vendor", "Customer", "Both"], {
+      required_error: "Please select partner type",
+    }),
+    businessName: z
+      .string({
+        required_error: "Business name is required",
+      })
+      .min(1, "Business name is required"),
+    ownershipType: z.enum(
+      ["Company", "HUF", "Individual", "LLP", "Partnership", "Other"],
+      {
+        required_error: "Please select ownership type",
+      }
+    ),
+    website: z.string().url().optional().or(z.literal("")),
+    vendorIndustryType: z.enum(vendorIndustryTypes).optional(),
+    customerIndustryType: z.enum(customerIndustryTypes).optional(),
+    hasDealershipCertificate: z.enum(["yes", "no"]).optional(),
+    dealershipCertificate: z.any().optional(),
+    placeOfBusiness: z.enum(
+      ["Within India (Domestic)", "Outside India (Import/Export)"],
+      {
+        required_error: "Please select your place of business",
+      }
+    ),
+  })
+  .refine(
+    (data) => {
+      if (data.hasBusinessEmail === "yes" && !data.businessEmail) {
+        return false;
+      }
+      return true;
+    },
+    {
+      message: "Business email is required when 'Yes' is selected",
+      path: ["businessEmail"],
+    }
+  )
+  .refine(
+    (data) => {
+      if (
+        (data.partnerType === "Vendor" || data.partnerType === "Both") &&
+        !data.vendorIndustryType
+      ) {
+        return false;
+      }
+      return true;
+    },
+    {
+      message: "Vendor industry type is required",
+      path: ["vendorIndustryType"],
+    }
+  )
+  .refine(
+    (data) => {
+      if (
+        (data.partnerType === "Customer" || data.partnerType === "Both") &&
+        !data.customerIndustryType
+      ) {
+        return false;
+      }
+      return true;
+    },
+    {
+      message: "Customer industry type is required",
+      path: ["customerIndustryType"],
+    }
+  )
+  .refine(
+    (data) => {
+      if (
+        data.hasDealershipCertificate === "yes" &&
+        !data.dealershipCertificate
+      ) {
+        return false;
+      }
+      return true;
+    },
+    {
+      message: "Dealership certificate is required",
+      path: ["dealershipCertificate"],
+    }
+  );
 
 type FormData = GeneralFormData;
 
@@ -136,8 +172,10 @@ export function GeneralForm() {
       website: formData.general?.website || "",
       vendorIndustryType: formData.general?.vendorIndustryType,
       customerIndustryType: formData.general?.customerIndustryType,
-      hasDealershipCertificate: formData.general?.hasDealershipCertificate || "no",
-      placeOfBusiness: formData.general?.placeOfBusiness || "Within India (Domestic)",
+      hasDealershipCertificate:
+        formData.general?.hasDealershipCertificate || "no",
+      placeOfBusiness:
+        formData.general?.placeOfBusiness || "Within India (Domestic)",
     },
     mode: "onSubmit", // This ensures validation runs on form submission
   });
@@ -152,12 +190,15 @@ export function GeneralForm() {
 
   useEffect(() => {
     const subscription = form.watch((value) => {
-      updateFormData('general', value);
+      updateFormData("general", value);
     });
     return () => subscription.unsubscribe();
   }, [form.watch, updateFormData]);
 
-  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>, fieldName: string) => {
+  const handleFileUpload = (
+    e: React.ChangeEvent<HTMLInputElement>,
+    fieldName: string
+  ) => {
     const file = e.target.files?.[0];
     if (file) {
       if (file.size > 5 * 1024 * 1024) {
@@ -177,7 +218,7 @@ export function GeneralForm() {
     try {
       setIsSubmitting(true);
       console.log("Submitting general form data:", data);
-      updateFormData('general', data);
+      updateFormData("general", data);
       console.log("Navigating to bank details");
       router.push("/bank-details");
     } catch (error) {
@@ -191,13 +232,15 @@ export function GeneralForm() {
     <div className="max-w-2xl mx-auto p-4 sm:p-6 lg:p-8">
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-        {/* Business Email Section */}
-        <FormField
+          <FormField
             control={form.control}
             name="hasBusinessEmail"
             render={({ field }) => (
               <FormItem className="space-y-3">
-                <FormLabel>Do you have any Business Email ID?*</FormLabel>
+                <FormLabel>
+                  Do you have any Business Email ID?
+                  <span className="text-red-500">*</span>
+                </FormLabel>
                 <FormControl>
                   <RadioGroup
                     onValueChange={field.onChange}
@@ -230,11 +273,11 @@ export function GeneralForm() {
               name="businessEmail"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Business Email*</FormLabel>
+                  <FormLabel>Business Email<span className="text-red-500">*</span></FormLabel>
                   <FormControl>
-                    <Input 
-                      placeholder="email@company.com" 
-                      {...field} 
+                    <Input
+                      placeholder="email@company.com"
+                      {...field}
                       className="w-full sm:w-3/4"
                     />
                   </FormControl>
@@ -253,12 +296,9 @@ export function GeneralForm() {
             name="businessName"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Business Enterprise Name*</FormLabel>
+                <FormLabel>Business Enterprise Name<span className="text-red-500">*</span></FormLabel>
                 <FormControl>
-                  <Input 
-                    {...field}
-                    className="w-full sm:w-3/4"
-                  />
+                  <Input {...field} className="w-full sm:w-3/4" />
                 </FormControl>
                 <FormDescription>
                   Enter the name under which you trade with the company.
@@ -274,9 +314,9 @@ export function GeneralForm() {
             name="ownershipType"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Ownership Type*</FormLabel>
-                <Select 
-                  onValueChange={field.onChange} 
+                <FormLabel>Ownership Type<span className="text-red-500">*</span></FormLabel>
+                <Select
+                  onValueChange={field.onChange}
                   defaultValue={field.value}
                 >
                   <FormControl>
@@ -303,9 +343,9 @@ export function GeneralForm() {
             name="partnerType"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Partner Type*</FormLabel>
-                <Select 
-                  onValueChange={field.onChange} 
+                <FormLabel>Partner Type<span className="text-red-500">*</span></FormLabel>
+                <Select
+                  onValueChange={field.onChange}
                   defaultValue={field.value}
                 >
                   <FormControl>
@@ -320,7 +360,8 @@ export function GeneralForm() {
                   </SelectContent>
                 </Select>
                 <FormDescription>
-                  Select whether you are a vendor or customer or both to our organization.
+                  Select whether you are a vendor or customer or both to our
+                  organization.
                 </FormDescription>
                 <FormMessage />
               </FormItem>
@@ -335,8 +376,8 @@ export function GeneralForm() {
               <FormItem>
                 <FormLabel>Website (optional)</FormLabel>
                 <FormControl>
-                  <Input 
-                    placeholder="www.website.com" 
+                  <Input
+                    placeholder="www.website.com"
                     {...field}
                     className="w-full sm:w-3/4"
                   />
@@ -365,11 +406,16 @@ export function GeneralForm() {
                     >
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
                         {vendorIndustryTypes.map((type) => (
-                          <FormItem key={type} className="flex items-center space-x-3">
+                          <FormItem
+                            key={type}
+                            className="flex items-center space-x-3"
+                          >
                             <FormControl>
                               <RadioGroupItem value={type} />
                             </FormControl>
-                            <FormLabel className="font-normal">{type}</FormLabel>
+                            <FormLabel className="font-normal">
+                              {type}
+                            </FormLabel>
                           </FormItem>
                         ))}
                       </div>
@@ -387,7 +433,7 @@ export function GeneralForm() {
               name="customerIndustryType"
               render={({ field }) => (
                 <FormItem className="space-y-3">
-                  <FormLabel>Customer Industry Type*</FormLabel>
+                  <FormLabel>Customer Industry Type<span className="text-red-500">*</span></FormLabel>
                   <FormControl>
                     <RadioGroup
                       onValueChange={field.onChange}
@@ -396,11 +442,16 @@ export function GeneralForm() {
                     >
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
                         {customerIndustryTypes.map((type) => (
-                          <FormItem key={type} className="flex items-center space-x-3">
+                          <FormItem
+                            key={type}
+                            className="flex items-center space-x-3"
+                          >
                             <FormControl>
                               <RadioGroupItem value={type} />
                             </FormControl>
-                            <FormLabel className="font-normal">{type}</FormLabel>
+                            <FormLabel className="font-normal">
+                              {type}
+                            </FormLabel>
                           </FormItem>
                         ))}
                       </div>
@@ -420,7 +471,7 @@ export function GeneralForm() {
                 name="hasDealershipCertificate"
                 render={({ field }) => (
                   <FormItem className="space-y-3">
-                    <FormLabel>Do you have Dealership Certificates?*</FormLabel>
+                    <FormLabel>Do you have Dealership Certificates?<span className="text-red-500">*</span></FormLabel>
                     <FormControl>
                       <RadioGroup
                         onValueChange={field.onChange}
@@ -452,20 +503,25 @@ export function GeneralForm() {
                   name="dealershipCertificate"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Dealership Certificate*</FormLabel>
+                      <FormLabel>Dealership Certificate<span className="text-red-500">*</span></FormLabel>
                       <FormControl>
                         <Input
                           type="file"
                           accept=".pdf,.jpg,.jpeg,.png"
-                          onChange={(e) => handleFileUpload(e, "dealershipCertificate")}
+                          onChange={(e) =>
+                            handleFileUpload(e, "dealershipCertificate")
+                          }
                           className="cursor-pointer w-full sm:w-3/4"
                         />
                       </FormControl>
                       <FormDescription>
-                        Upload a valid dealership certificate (PDF, JPEG, PNG, max 5MB)
+                        Upload a valid dealership certificate (PDF, JPEG, PNG,
+                        max 5MB)
                       </FormDescription>
                       {fileError && (
-                        <p className="text-sm font-medium text-destructive">{fileError}</p>
+                        <p className="text-sm font-medium text-destructive">
+                          {fileError}
+                        </p>
                       )}
                       <FormMessage />
                     </FormItem>
@@ -480,7 +536,7 @@ export function GeneralForm() {
             name="placeOfBusiness"
             render={({ field }) => (
               <FormItem className="space-y-3">
-                <FormLabel>Select your place of Business*</FormLabel>
+                <FormLabel>Select your place of Business<span className="text-red-500">*</span></FormLabel>
                 <FormControl>
                   <RadioGroup
                     onValueChange={field.onChange}
@@ -506,14 +562,15 @@ export function GeneralForm() {
                   </RadioGroup>
                 </FormControl>
                 <FormDescription>
-                  The place of Business will determine whether it is mandatory to collect Tax Compliance Details.
+                  The place of Business will determine whether it is mandatory
+                  to collect Tax Compliance Details.
                 </FormDescription>
                 <FormMessage />
               </FormItem>
             )}
           />
 
-          {/* Form Navigation Buttons */}
+         
           <div className="flex justify-between pt-6">
             <Button
               type="button"
@@ -523,11 +580,7 @@ export function GeneralForm() {
             >
               Back
             </Button>
-            <Button 
-              type="submit"
-              disabled={isSubmitting}
-              className="w-24"
-            >
+            <Button type="submit" disabled={isSubmitting} className="w-24">
               {isSubmitting ? (
                 <div className="flex items-center gap-2">
                   <div className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent"></div>
@@ -541,6 +594,12 @@ export function GeneralForm() {
 
           <div className="text-right text-sm text-gray-500 mt-4">
             Step 2 of 8
+          </div>
+          <div className="flex flex-col sm:flex-row justify-center items-center text-center text-sm sm:text-base text-gray-500 border-t border-gray-300 pt-4">
+            <p>
+              2016 <FaRegCopyright className="inline mx-1" /> Shaster
+              Technologies Pvt Ltd All Rights Reserved
+            </p>
           </div>
         </form>
       </Form>

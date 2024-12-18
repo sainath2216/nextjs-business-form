@@ -5,6 +5,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
 import { Button } from "@/components/ui/button";
+import { FaRegCopyright } from "react-icons/fa";
 import {
   Form,
   FormControl,
@@ -32,7 +33,7 @@ import {
 } from "@/components/ui/dialog";
 import { Captcha } from "@/components/ui/captcha";
 import { useRouter } from "next/navigation";
-import { useFormStore } from '@/store/formStore';
+import { useFormStore } from "@/store/formStore";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 
 const titles = ["Mr.", "Mrs.", "Ms.", "Dr.", "Prof."] as const;
@@ -57,7 +58,7 @@ export function SubmitterForm() {
   const [showSummary, setShowSummary] = useState(false);
   const [captchaError, setCaptchaError] = useState<string | null>(null);
   const router = useRouter();
-  const [captchaCode, setCaptchaCode] = useState('');
+  const [captchaCode, setCaptchaCode] = useState("");
   const { formData, setCurrentStep, updateFormData } = useFormStore();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -74,9 +75,9 @@ export function SubmitterForm() {
   }, [setCurrentStep]);
 
   const handleCaptchaChange = (code: string) => {
-    console.log('Setting captcha code:', code);
-    updateFormData('captchaCode', code);
-    form.setValue('verificationCode', '');
+    console.log("Setting captcha code:", code);
+    updateFormData("captchaCode", code);
+    form.setValue("verificationCode", "");
   };
 
   const validateCaptcha = (inputCode: string): boolean => {
@@ -88,11 +89,11 @@ export function SubmitterForm() {
       setError(null);
       setCaptchaError(null);
       setIsSubmitting(true);
-      
-      console.log('Entered code:', data.verificationCode);
-      console.log('Generated code:', formData.captchaCode);
+
+      console.log("Entered code:", data.verificationCode);
+      console.log("Generated code:", formData.captchaCode);
       // Store submitter data
-      updateFormData('submitter', data);
+      updateFormData("submitter", data);
 
       if (data.verificationCode !== formData.captchaCode) {
         setCaptchaError("Invalid captcha code");
@@ -110,33 +111,35 @@ export function SubmitterForm() {
         submitter: data,
       };
 
-      console.log('Sending data:', completeFormData); // Debug log
+      console.log("Sending data:", completeFormData); // Debug log
 
       // Submit to API
-      const response = await fetch('/api/submit-form', {
-        method: 'POST',
+      const response = await fetch("/api/submit-form", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify(completeFormData),
-      }).catch(error => {
-        console.log('Fetch error:', error); // Debug log
+      }).catch((error) => {
+        console.log("Fetch error:", error); // Debug log
         throw new Error(`Network error: ${error.message}`);
       });
 
       if (!response.ok) {
         const errorText = await response.text();
-        console.log('Error response:', errorText); // Debug log
+        console.log("Error response:", errorText); // Debug log
         throw new Error(`Server error: ${errorText}`);
       }
 
       const result = await response.json();
-      console.log('Success response:', result); // Debug log
+      console.log("Success response:", result); // Debug log
 
       router.push("/success");
     } catch (error) {
       console.error("Submission error:", error);
-      setError(error instanceof Error ? error.message : "Failed to submit form");
+      setError(
+        error instanceof Error ? error.message : "Failed to submit form"
+      );
     } finally {
       setIsSubmitting(false);
     }
@@ -145,26 +148,28 @@ export function SubmitterForm() {
   const formatDataForDisplay = (data: any) => {
     if (!data) return [];
     return Object.entries(data).map(([key, value]) => ({
-      field: key.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase()),
-      value: formatValue(value)
+      field: key
+        .replace(/([A-Z])/g, " $1")
+        .replace(/^./, (str) => str.toUpperCase()),
+      value: formatValue(value),
     }));
   };
 
   const formatValue = (value: any): string => {
-    if (value === null || value === undefined) return '-';
-    if (typeof value === 'boolean') return value ? 'Yes' : 'No';
+    if (value === null || value === undefined) return "-";
+    if (typeof value === "boolean") return value ? "Yes" : "No";
     if (value instanceof File) return value.name;
-    if (Array.isArray(value)) return value.join(', ');
+    if (Array.isArray(value)) return value.join(", ");
     return String(value);
   };
 
   const formSections = {
-    'General Information': formatDataForDisplay(formData.general),
-    'Bank Details': formatDataForDisplay(formData.bank),
-    'GST & PAN Details': formatDataForDisplay(formData.gst),
-    'Contact Person': formatDataForDisplay(formData.contactPerson),
-    'Address Details': formatDataForDisplay(formData.address),
-    'Turnover Details': formatDataForDisplay(formData.turnover),
+    "General Information": formatDataForDisplay(formData.general),
+    "Bank Details": formatDataForDisplay(formData.bank),
+    "GST & PAN Details": formatDataForDisplay(formData.gst),
+    "Contact Person": formatDataForDisplay(formData.contactPerson),
+    "Address Details": formatDataForDisplay(formData.address),
+    "Turnover Details": formatDataForDisplay(formData.turnover),
   };
 
   return (
@@ -182,8 +187,11 @@ export function SubmitterForm() {
             name="title"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Title*</FormLabel>
-                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                <FormLabel>Title<span className="text-red-500">*</span></FormLabel>
+                <Select
+                  onValueChange={field.onChange}
+                  defaultValue={field.value}
+                >
                   <FormControl>
                     <SelectTrigger>
                       <SelectValue placeholder="Select title" />
@@ -207,7 +215,7 @@ export function SubmitterForm() {
             name="firstName"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>First Name*</FormLabel>
+                <FormLabel>First Name<span className="text-red-500">*</span></FormLabel>
                 <FormControl>
                   <Input {...field} />
                 </FormControl>
@@ -238,7 +246,7 @@ export function SubmitterForm() {
           name="department"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Department*</FormLabel>
+              <FormLabel>Department<span className="text-red-500">*</span></FormLabel>
               <FormControl>
                 <Input {...field} />
               </FormControl>
@@ -253,7 +261,7 @@ export function SubmitterForm() {
           name="designation"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Designation*</FormLabel>
+              <FormLabel>Designation<span className="text-red-500">*</span></FormLabel>
               <FormControl>
                 <Input {...field} />
               </FormControl>
@@ -276,7 +284,9 @@ export function SubmitterForm() {
               </FormControl>
               <div className="space-y-1 leading-none">
                 <FormLabel>
-                  By submitting this form, I hereby solemnly declare that the information provided in this form is correct and up-to-date to the best of my knowledge.
+                  By submitting this form, I hereby solemnly declare that the
+                  information provided in this form is correct and up-to-date to
+                  the best of my knowledge.
                 </FormLabel>
                 <FormMessage />
               </div>
@@ -286,16 +296,14 @@ export function SubmitterForm() {
 
         {/* Verification Code with CAPTCHA */}
         {captchaError && (
-          <div className="text-red-600 text-sm">
-            {captchaError}
-          </div>
+          <div className="text-red-600 text-sm">{captchaError}</div>
         )}
         <FormField
           control={form.control}
           name="verificationCode"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Verification Code*</FormLabel>
+              <FormLabel>Verification Code<span className="text-red-500">*</span></FormLabel>
               <FormControl>
                 <div className="space-y-2">
                   <Input {...field} placeholder="Enter the code shown below" />
@@ -331,48 +339,68 @@ export function SubmitterForm() {
                 <DialogTitle>Form Summary</DialogTitle>
               </DialogHeader>
               <div className="space-y-6">
-                {Object.entries(formSections).map(([section, data]) => (
-                  data.length > 0 && (
-                    <div key={section} className="space-y-2">
-                      <h3 className="text-lg font-semibold border-b pb-2">{section}</h3>
-                      <div className="overflow-x-auto">
-                        <table className="min-w-full divide-y divide-gray-200">
-                          <thead className="bg-gray-50">
-                            <tr>
-                              <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                Field
-                              </th>
-                              <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                Value
-                              </th>
-                            </tr>
-                          </thead>
-                          <tbody className="bg-white divide-y divide-gray-200">
-                            {data.map(({ field, value }, index) => (
-                              <tr key={index} className={index % 2 === 0 ? 'bg-white' : 'bg-gray-50'}>
-                                <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                                  {field}
-                                </td>
-                                <td className="px-6 py-4 whitespace-pre-wrap text-sm text-gray-500">
-                                  {value}
-                                </td>
+                {Object.entries(formSections).map(
+                  ([section, data]) =>
+                    data.length > 0 && (
+                      <div key={section} className="space-y-2">
+                        <h3 className="text-lg font-semibold border-b pb-2">
+                          {section}
+                        </h3>
+                        <div className="overflow-x-auto">
+                          <table className="min-w-full divide-y divide-gray-200">
+                            <thead className="bg-gray-50">
+                              <tr>
+                                <th
+                                  scope="col"
+                                  className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                                >
+                                  Field
+                                </th>
+                                <th
+                                  scope="col"
+                                  className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                                >
+                                  Value
+                                </th>
                               </tr>
-                            ))}
-                          </tbody>
-                        </table>
+                            </thead>
+                            <tbody className="bg-white divide-y divide-gray-200">
+                              {data.map(({ field, value }, index) => (
+                                <tr
+                                  key={index}
+                                  className={
+                                    index % 2 === 0 ? "bg-white" : "bg-gray-50"
+                                  }
+                                >
+                                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                                    {field}
+                                  </td>
+                                  <td className="px-6 py-4 whitespace-pre-wrap text-sm text-gray-500">
+                                    {value}
+                                  </td>
+                                </tr>
+                              ))}
+                            </tbody>
+                          </table>
+                        </div>
                       </div>
-                    </div>
-                  )
-                ))}
+                    )
+                )}
               </div>
             </DialogContent>
           </Dialog>
 
-          <Button type="submit" className="bg-[#E91E63]">Submit</Button>
+          <Button type="submit" className="bg-[#E91E63]">
+            Submit
+          </Button>
         </div>
 
-        <div className="text-right text-sm text-gray-500">
-          8/8
+        <div className="text-right text-sm text-gray-500">8/8</div>
+        <div className="flex flex-col sm:flex-row justify-center items-center text-center text-sm sm:text-base text-gray-500 border-t border-gray-300 pt-4">
+          <p>
+            2016 <FaRegCopyright className="inline mx-1" /> Shaster Technologies
+            Pvt Ltd All Rights Reserved
+          </p>
         </div>
       </form>
     </Form>

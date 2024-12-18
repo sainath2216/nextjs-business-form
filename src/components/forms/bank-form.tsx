@@ -2,11 +2,13 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { useFormStore } from '@/store/formStore';
+import { useFormStore } from "@/store/formStore";
 import { Button } from "@/components/ui/button";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
+import { FaRegCopyright } from "react-icons/fa";
+
 import {
   Form,
   FormControl,
@@ -23,12 +25,14 @@ const formSchema = z.object({
   bankAccountName: z.string().min(1, "Bank account name is required"),
   accountNumber: z.string().min(1, "Account number is required"),
   bankName: z.string().min(1, "Bank name is required"),
-  ifscCode: z.string().regex(/^[A-Z]{4}0[A-Z0-9]{6}$/, "Invalid IFSC code format"),
+  ifscCode: z
+    .string()
+    .regex(/^[A-Z]{4}0[A-Z0-9]{6}$/, "Invalid IFSC code format"),
   documentType: z.enum([
     "Cancelled Cheque",
     "Scanned Passbook Copy (First Page)",
     "Bank Statement",
-    "Letter Head (For Virtual Account)"
+    "Letter Head (For Virtual Account)",
   ]),
   document: z.any().optional().nullable(),
 });
@@ -42,7 +46,7 @@ export function BankDetailsForm() {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const debugLog = (...args: unknown[]) => {
-    if (process.env.NODE_ENV !== 'production') {
+    if (process.env.NODE_ENV !== "production") {
       console.log(...args);
     }
   };
@@ -55,7 +59,7 @@ export function BankDetailsForm() {
       bankName: "",
       ifscCode: "",
       documentType: "Cancelled Cheque",
-      document: undefined
+      document: undefined,
     },
   });
 
@@ -72,7 +76,7 @@ export function BankDetailsForm() {
   }
 
   debugLog("General form data:", formData.general);
-  
+
   const isCustomer = formData.general?.partnerType === "Customer";
   debugLog("Is customer check:", isCustomer);
 
@@ -101,12 +105,12 @@ export function BankDetailsForm() {
             >
               Back
             </Button>
-            <Button 
+            <Button
               onClick={() => {
                 debugLog("Next clicked - updating form data");
-                updateFormData('bank', {
+                updateFormData("bank", {
                   skipped: true,
-                  partnerType: 'Customer'
+                  partnerType: "Customer",
                 });
                 debugLog("Navigating to GST details");
                 router.push("/gst-details");
@@ -143,7 +147,7 @@ export function BankDetailsForm() {
     try {
       setIsSubmitting(true);
       // Store in form store
-      updateFormData('bank', data);
+      updateFormData("bank", data);
       // Navigate to next page
       router.push("/gst-details");
     } catch (error) {
@@ -161,7 +165,7 @@ export function BankDetailsForm() {
           name="bankAccountName"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Bank Business Account Name*</FormLabel>
+              <FormLabel>Bank Business Account Name<span className="text-red-500">*</span></FormLabel>
               <FormControl>
                 <Input placeholder="Enter your bank account name" {...field} />
               </FormControl>
@@ -178,7 +182,7 @@ export function BankDetailsForm() {
           name="accountNumber"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Bank Account No.*</FormLabel>
+              <FormLabel>Bank Account No.<span className="text-red-500">*</span></FormLabel>
               <FormControl>
                 <Input placeholder="Enter Bank Account Number" {...field} />
               </FormControl>
@@ -192,7 +196,7 @@ export function BankDetailsForm() {
           name="bankName"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Bank Name*</FormLabel>
+              <FormLabel>Bank Name<span className="text-red-500">*</span></FormLabel>
               <FormControl>
                 <Input placeholder="Enter Bank Name" {...field} />
               </FormControl>
@@ -206,7 +210,7 @@ export function BankDetailsForm() {
           name="ifscCode"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>IFSC Code*</FormLabel>
+              <FormLabel>IFSC Code<span className="text-red-500">*</span></FormLabel>
               <FormControl>
                 <Input placeholder="Enter IFSC Code" {...field} />
               </FormControl>
@@ -223,15 +227,25 @@ export function BankDetailsForm() {
           name="documentType"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Which of the following would you like to upload?*</FormLabel>
+              <FormLabel>
+                Which of the following would you like to upload?<span className="text-red-500">*</span>
+              </FormLabel>
               <FormControl>
                 <RadioGroup
                   onValueChange={field.onChange}
                   defaultValue={field.value}
                   className="flex flex-col space-y-2"
                 >
-                  {["Cancelled Cheque", "Scanned Passbook Copy (First Page)", "Bank Statement", "Letter Head (For Virtual Account)"].map((type) => (
-                    <FormItem key={type} className="flex items-center space-x-3">
+                  {[
+                    "Cancelled Cheque",
+                    "Scanned Passbook Copy (First Page)",
+                    "Bank Statement",
+                    "Letter Head (For Virtual Account)",
+                  ].map((type) => (
+                    <FormItem
+                      key={type}
+                      className="flex items-center space-x-3"
+                    >
                       <FormControl>
                         <RadioGroupItem value={type} />
                       </FormControl>
@@ -250,7 +264,7 @@ export function BankDetailsForm() {
           name="document"
           render={({ field: { value, onChange, ...field } }) => (
             <FormItem>
-              <FormLabel>Upload Document*</FormLabel>
+              <FormLabel>Upload Document<span className="text-red-500">*</span></FormLabel>
               <FormControl>
                 <Input
                   type="file"
@@ -267,7 +281,9 @@ export function BankDetailsForm() {
                 Upload the selected document (PDF, JPEG, PNG, max 5MB)
               </FormDescription>
               {fileError && (
-                <p className="text-sm font-medium text-destructive">{fileError}</p>
+                <p className="text-sm font-medium text-destructive">
+                  {fileError}
+                </p>
               )}
               <FormMessage />
             </FormItem>
@@ -287,8 +303,12 @@ export function BankDetailsForm() {
           </Button>
         </div>
 
-        <div className="text-right text-sm text-gray-500">
-          3/8
+        <div className="text-right text-sm text-gray-500">3/8</div>
+        <div className="flex flex-col sm:flex-row justify-center items-center text-center text-sm sm:text-base text-gray-500 border-t border-gray-300 pt-4">
+          <p>
+            2016 <FaRegCopyright className="inline mx-1" /> Shaster Technologies
+            Pvt Ltd All Rights Reserved
+          </p>
         </div>
       </form>
     </Form>

@@ -1,6 +1,7 @@
 // components/ui/form-progress.tsx
 import * as React from "react";
 import { cn } from "@/lib/utils";
+import { FaRegCopyright } from "react-icons/fa";
 
 export interface FormProgressProps
   extends React.HTMLAttributes<HTMLDivElement> {
@@ -60,6 +61,7 @@ const FormProgress = React.forwardRef<HTMLDivElement, FormProgressProps>(
           )}
           {showPercentage && <span>{percentage}%</span>}
         </div>
+        
       </div>
     );
   }
