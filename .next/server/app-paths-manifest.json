@@ -1,0 +1,16 @@
+{
+  "/_not-found/page": "app/_not-found/page.js",
+  "/api/forms/bank-details/route": "app/api/forms/bank-details/route.js",
+  "/api/submit-form/route": "app/api/submit-form/route.js",
+  "/api/forms/general/route": "app/api/forms/general/route.js",
+  "/favicon.ico/route": "app/favicon.ico/route.js",
+  "/general/page": "app/general/page.js",
+  "/contact-person/page": "app/contact-person/page.js",
+  "/gst-details/page": "app/gst-details/page.js",
+  "/address/page": "app/address/page.js",
+  "/page": "app/page.js",
+  "/submitter/page": "app/submitter/page.js",
+  "/bank-details/page": "app/bank-details/page.js",
+  "/success/page": "app/success/page.js",
+  "/turnover/page": "app/turnover/page.js"
+}

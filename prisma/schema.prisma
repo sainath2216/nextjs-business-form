@@ -1,0 +1,69 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+  relationMode = "prisma"
+}
+
+model FormSubmission {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // General Details
+  businessEmailId     String?
+  businessName       String
+  ownershipType     String
+  partnerType       String
+  website           String?
+  vendorIndustryType String
+  placeOfBusiness   String
+
+  // Bank Details
+  bankName          String?
+  accountNumber     String?
+  ifscCode         String?
+  bankDocument     String?
+
+  // GST Details
+  gstType          String?
+  gstNumber        String?
+  gstCertificate   String?
+  panNumber        String?
+  panDocument      String?
+  hasMsmeUdyog     String?
+  msmeUdyogNumber  String?
+  msmeUdyogCertificate String?
+
+  // Contact Person
+  title            String?
+  firstName        String?
+  lastName         String?
+  designation      String?
+  countryCode      String?
+  phoneNumber      String?
+  hasEmail         String?
+  email            String?
+
+  // Address Details
+  addresses        Json?
+
+  // Turnover Declaration
+  turnoverExceedingTenCrore String?
+  hasFiledITR              String?
+  acknowledgementNo2021    String?
+  filingDate2021          DateTime?
+  acknowledgementNo2022    String?
+  filingDate2022          DateTime?
+  acknowledgementNo2023    String?
+  filingDate2023          DateTime?
+
+  // Submitter Details
+  submitterName    String?
+  submitterDesignation String?
+  submitterEmail   String?
+  declaration      Boolean @default(false)
+}
